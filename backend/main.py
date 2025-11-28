@@ -2,6 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from models.database import init_db, close_db
 from routes import auth, ingestion, query, search, documents
@@ -12,6 +16,10 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
+# Suppress harmless warnings
+logging.getLogger("passlib.handlers.bcrypt").setLevel(logging.ERROR)
+logging.getLogger("chromadb.telemetry.product.posthog").setLevel(logging.ERROR)
 
 # Initialize FastAPI app
 app = FastAPI(

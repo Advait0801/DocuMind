@@ -31,7 +31,8 @@ def get_llm():
         model=GEMINI_MODEL,
         temperature=0.7,
         streaming=True,
-        google_api_key=GOOGLE_API_KEY
+        google_api_key=GOOGLE_API_KEY,
+        convert_system_message_to_human=True  # Gemini doesn't support SystemMessage directly
     )
 
 

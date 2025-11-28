@@ -18,13 +18,13 @@ async def get_documents(
     documents = await cursor.to_list(length=None)
     
     document_infos = [
-        DocumentInfo(
-            doc_id=doc["doc_id"],
-            filename=doc["filename"],
-            uploaded_at=doc.get("uploaded_at"),
-            chunk_count=doc.get("chunk_count", 0),
-            file_size=doc.get("file_size", 0)
-        )
+        DocumentInfo.model_validate({
+            "doc_id": doc["doc_id"],
+            "filename": doc["filename"],
+            "uploaded_at": doc.get("uploaded_at"),
+            "chunk_count": doc.get("chunk_count", 0),
+            "file_size": doc.get("file_size", 0)
+        })
         for doc in documents
     ]
     

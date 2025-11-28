@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
@@ -35,14 +35,13 @@ class CurrentUser(BaseModel):
 
 # Document Schemas
 class DocumentInfo(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
     doc_id: str
     filename: str
     uploaded_at: datetime
     chunk_count: int
     file_size: int
-
-    class Config:
-        from_attributes = True
 
 
 class DocumentListResponse(BaseModel):

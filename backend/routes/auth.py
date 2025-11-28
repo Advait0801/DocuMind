@@ -7,7 +7,7 @@ from utils.auth import (
     get_password_hash,
     create_access_token,
     create_refresh_token,
-    ACCESS_TOKEN_EXPIRE_MINUTES
+    ACCESS_TOKEN_EXPIRE_DAYS
 )
 from utils.schemas import UserRegister, UserLogin, TokenResponse
 
@@ -48,7 +48,7 @@ async def register(user_data: UserRegister, db=Depends(get_db)):
     # Generate tokens
     access_token = create_access_token(
         data={"sub": user_id, "email": user_data.email, "username": user_data.username},
-        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expires_delta=timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
     )
     refresh_token = create_refresh_token(
         data={"sub": user_id, "email": user_data.email, "username": user_data.username}
@@ -90,7 +90,7 @@ async def login(credentials: UserLogin, db=Depends(get_db)):
     # Generate tokens
     access_token = create_access_token(
         data={"sub": str(user["_id"]), "email": user["email"], "username": user["username"]},
-        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expires_delta=timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
     )
     refresh_token = create_refresh_token(
         data={"sub": str(user["_id"]), "email": user["email"], "username": user["username"]}
