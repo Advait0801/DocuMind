@@ -44,7 +44,8 @@ struct RegisterView: View {
                             title: "Username",
                             placeholder: "Enter username",
                             text: $viewModel.username,
-                            focused: $isFieldFocused
+                            focused: $isFieldFocused,
+                            errorMessage: viewModel.usernameError
                         )
                         
                         DMTextField(
@@ -52,7 +53,8 @@ struct RegisterView: View {
                             placeholder: "Enter email",
                             text: $viewModel.email,
                             keyboardType: .emailAddress,
-                            focused: $isFieldFocused
+                            focused: $isFieldFocused,
+                            errorMessage: viewModel.emailError
                         )
                         
                         DMTextField(
@@ -60,7 +62,8 @@ struct RegisterView: View {
                             placeholder: "Enter password",
                             text: $viewModel.password,
                             isSecure: true,
-                            focused: $isFieldFocused
+                            focused: $isFieldFocused,
+                            errorMessage: viewModel.passwordError
                         )
                         
                         DMTextField(
@@ -68,7 +71,8 @@ struct RegisterView: View {
                             placeholder: "Confirm password",
                             text: $viewModel.confirmPassword,
                             isSecure: true,
-                            focused: $isFieldFocused
+                            focused: $isFieldFocused,
+                            errorMessage: viewModel.confirmPasswordError
                         )
                         
                         DMButton(title: "Register", style: .primary) {

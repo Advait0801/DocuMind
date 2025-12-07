@@ -16,20 +16,35 @@ class LoginViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var showError = false
     
+    // Field-specific error messages
+    @Published var usernameOrEmailError: String?
+    @Published var passwordError: String?
+    
     private let authService = AuthService.shared
     
     func login() async {
-        guard !usernameOrEmail.isEmpty, !password.isEmpty else {
-            errorMessage = "Please fill in all fields"
-            showError = true
+        // Clear previous errors
+        usernameOrEmailError = nil
+        passwordError = nil
+        errorMessage = nil
+        showError = false
+        
+        // Validate username/email
+        if usernameOrEmail.trimmingCharacters(in: .whitespaces).isEmpty {
+            usernameOrEmailError = "Username or email cannot be empty"
+            return
+        }
+        
+        // Validate password
+        if password.isEmpty {
+            passwordError = "Password cannot be empty"
             return
         }
         
         isLoading = true
-        errorMessage = nil
         
         do {
-            try await authService.login(usernameOrEmail: usernameOrEmail, password: password)
+            try await authService.login(usernameOrEmail: usernameOrEmail.trimmingCharacters(in: .whitespaces), password: password)
         } catch {
             errorMessage = error.localizedDescription
             showError = true

@@ -147,5 +147,5 @@ async def refresh_token(request: RefreshTokenRequest):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Could not refresh token: {str(e)}"
-        )
+    )
 

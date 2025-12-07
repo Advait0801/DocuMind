@@ -36,7 +36,8 @@ struct LoginView: View {
                         placeholder: "Enter username or email",
                         text: $viewModel.usernameOrEmail,
                         keyboardType: .emailAddress,
-                        focused: $isFieldFocused
+                        focused: $isFieldFocused,
+                        errorMessage: viewModel.usernameOrEmailError
                     )
                     
                     DMTextField(
@@ -44,7 +45,8 @@ struct LoginView: View {
                         placeholder: "Enter password",
                         text: $viewModel.password,
                         isSecure: true,
-                        focused: $isFieldFocused
+                        focused: $isFieldFocused,
+                        errorMessage: viewModel.passwordError
                     )
                     
                     DMButton(title: "Login", style: .primary) {
