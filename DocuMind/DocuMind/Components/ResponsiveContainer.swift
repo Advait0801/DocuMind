@@ -19,10 +19,13 @@ struct ResponsiveContainer<Content: View>: View {
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
-                content
-                    .frame(maxWidth: maxContentWidth(for: geometry.size.width))
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, horizontalPadding)
+                HStack {
+                    Spacer()
+                    content
+                        .frame(maxWidth: maxContentWidth(for: geometry.size.width))
+                    Spacer()
+                }
+                .padding(.horizontal, horizontalPadding)
             }
         }
     }
