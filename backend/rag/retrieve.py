@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 def retrieve_chunks(
     query: str,
-    user_id: int,
+    user_id: str,
     top_k: int = 5,
     doc_ids: Optional[List[str]] = None
 ) -> List[QueryChunk]:
@@ -127,7 +127,7 @@ def _deduplicate_search_results(search_results: List[SearchResult], similarity_t
 
 def search_documents(
     query: str,
-    user_id: int,
+    user_id: str,
     top_k: int = 10,
     doc_ids: Optional[List[str]] = None
 ) -> List[SearchResult]:

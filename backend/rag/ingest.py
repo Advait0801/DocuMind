@@ -35,7 +35,7 @@ def chunk_text(text: str, chunk_size: int = 800, chunk_overlap: int = 200) -> Li
 def ingest_pdf(
     pdf_path: str,
     doc_id: str,
-    user_id: int,
+    user_id: str,
     filename: str,
     metadata: Dict = None
 ) -> int:

@@ -71,6 +71,19 @@ def decode_token(token: str) -> dict:
         )
 
 
+def decode_refresh_token(token: str) -> dict:
+    """Decode and verify a refresh token."""
+    payload = decode_token(token)
+    
+    if payload.get("type") != "refresh":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token type. Expected refresh token.",
+        )
+    
+    return payload
+
+
 async def get_current_user(
     token: str = Depends(oauth2_scheme), db=Depends(get_db)
 ) -> CurrentUser:

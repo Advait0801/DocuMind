@@ -7,9 +7,10 @@ from utils.auth import (
     get_password_hash,
     create_access_token,
     create_refresh_token,
+    decode_refresh_token,
     ACCESS_TOKEN_EXPIRE_DAYS
 )
-from utils.schemas import UserRegister, UserLogin, TokenResponse
+from utils.schemas import UserRegister, UserLogin, TokenResponse, RefreshTokenRequest
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -101,4 +102,50 @@ async def login(credentials: UserLogin, db=Depends(get_db)):
         refresh_token=refresh_token,
         token_type="bearer"
     )
+
+
+@router.post("/refresh", response_model=TokenResponse)
+async def refresh_token(request: RefreshTokenRequest):
+    """Refresh access token using a valid refresh token."""
+    try:
+        # Decode and validate refresh token
+        payload = decode_refresh_token(request.refresh_token)
+        
+        # Extract user info from token
+        user_id = payload.get("sub")
+        email = payload.get("email")
+        username = payload.get("username")
+        
+        if not user_id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid refresh token"
+            )
+        
+        # Generate new access token
+        access_token = create_access_token(
+            data={"sub": user_id, "email": email, "username": username},
+            expires_delta=timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
+        )
+        
+        # Optionally generate a new refresh token (refresh token rotation)
+        # For simplicity, we'll return the same refresh token
+        # In production, you might want to rotate refresh tokens
+        refresh_token = create_refresh_token(
+            data={"sub": user_id, "email": email, "username": username}
+        )
+        
+        return TokenResponse(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_type="bearer"
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Could not refresh token: {str(e)}"
+        )
 

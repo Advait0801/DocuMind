@@ -36,7 +36,7 @@ class VectorStore:
         self.embedding_model = get_embedding_model()
         logger.info(f"VectorStore initialized with persist directory: {persist_directory}")
     
-    def get_collection(self, user_id: int):
+    def get_collection(self, user_id: str):
         """Get or create a collection for a specific user (namespace)."""
         collection_name = f"user_{user_id}"
         try:
@@ -50,7 +50,7 @@ class VectorStore:
     
     def add_documents(
         self,
-        user_id: int,
+        user_id: str,
         doc_id: str,
         texts: List[str],
         metadatas: List[Dict],
@@ -83,7 +83,7 @@ class VectorStore:
     
     def search(
         self,
-        user_id: int,
+        user_id: str,
         query: str,
         n_results: int = 5,
         doc_ids: Optional[List[str]] = None,
@@ -132,7 +132,7 @@ class VectorStore:
         
         return formatted_results
     
-    def delete_document(self, user_id: int, doc_id: str):
+    def delete_document(self, user_id: str, doc_id: str):
         """Delete all chunks for a specific document."""
         collection = self.get_collection(user_id)
         collection.delete(where={"doc_id": doc_id})
