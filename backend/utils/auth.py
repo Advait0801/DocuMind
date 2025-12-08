@@ -84,11 +84,42 @@ def decode_refresh_token(token: str) -> dict:
     return payload
 
 
+async def is_token_revoked(token: str, db) -> bool:
+    """Check whether a token has been revoked."""
+    revoked = await db.revoked_tokens.find_one({"token": token})
+    return revoked is not None
+
+
+async def revoke_token(token: str, db):
+    """Persist a token revocation entry with its expiry for cleanup."""
+    payload = decode_token(token)
+    expires_at = payload.get("exp")
+    token_type = payload.get("type", "access")
+    
+    await db.revoked_tokens.update_one(
+        {"token": token},
+        {
+            "$set": {
+                "token": token,
+                "type": token_type,
+                "expires_at": datetime.fromtimestamp(expires_at, timezone.utc) if expires_at else None,
+            }
+        },
+        upsert=True
+    )
+
+
 async def get_current_user(
     token: str = Depends(oauth2_scheme), db=Depends(get_db)
 ) -> CurrentUser:
     """Get the current authenticated user from the token."""
     payload = decode_token(token)
+    
+    if await is_token_revoked(token, db):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has been revoked",
+        )
     
     if payload.get("type") != "access":
         raise HTTPException(

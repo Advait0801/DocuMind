@@ -37,6 +37,8 @@ async def init_db():
     await database.users.create_index("email", unique=True)
     await database.documents.create_index("doc_id", unique=True)
     await database.documents.create_index([("user_id", ASCENDING), ("uploaded_at", ASCENDING)])
+    await database.revoked_tokens.create_index("token", unique=True)
+    await database.revoked_tokens.create_index("expires_at", expireAfterSeconds=0)
 
 
 async def close_db():

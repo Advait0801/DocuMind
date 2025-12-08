@@ -8,7 +8,11 @@ from utils.auth import (
     create_access_token,
     create_refresh_token,
     decode_refresh_token,
-    ACCESS_TOKEN_EXPIRE_DAYS
+    decode_token,
+    revoke_token,
+    is_token_revoked,
+    ACCESS_TOKEN_EXPIRE_DAYS,
+    oauth2_scheme
 )
 from utils.schemas import UserRegister, UserLogin, TokenResponse, RefreshTokenRequest
 
@@ -105,9 +109,16 @@ async def login(credentials: UserLogin, db=Depends(get_db)):
 
 
 @router.post("/refresh", response_model=TokenResponse)
-async def refresh_token(request: RefreshTokenRequest):
+async def refresh_token(request: RefreshTokenRequest, db=Depends(get_db)):
     """Refresh access token using a valid refresh token."""
     try:
+        # Ensure refresh token hasn't been revoked
+        if await is_token_revoked(request.refresh_token, db):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Refresh token has been revoked. Please log in again."
+            )
+        
         # Decode and validate refresh token
         payload = decode_refresh_token(request.refresh_token)
         
@@ -148,4 +159,32 @@ async def refresh_token(request: RefreshTokenRequest):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Could not refresh token: {str(e)}"
     )
+
+
+@router.post("/logout", status_code=status.HTTP_200_OK)
+async def logout(
+    request: RefreshTokenRequest,
+    token: str = Depends(oauth2_scheme),
+    db=Depends(get_db)
+):
+    """
+    Revoke both the current access token and provided refresh token.
+    Clients should discard local tokens after this call.
+    """
+    # Validate access token and ensure it's not already revoked
+    decode_token(token)
+    if await is_token_revoked(token, db):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has already been revoked."
+        )
+    
+    # Revoke access token
+    await revoke_token(token, db)
+    
+    # Revoke refresh token (if valid)
+    decode_refresh_token(request.refresh_token)
+    await revoke_token(request.refresh_token, db)
+    
+    return {"message": "Successfully logged out"}
 

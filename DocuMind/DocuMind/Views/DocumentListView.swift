@@ -8,9 +8,12 @@
 import SwiftUI
 
 struct DocumentListView: View {
+    @StateObject private var authService = AuthService.shared
     @StateObject private var viewModel = DocumentListViewModel()
     @State private var showUpload = false
     @State private var selectedDocument: DocumentInfo?
+    @State private var isLoggingOut = false
+    @State private var logoutError: String?
     
     var body: some View {
         NavigationView {
@@ -45,6 +48,16 @@ struct DocumentListView: View {
             .navigationTitle("Documents")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        Task { await handleLogout() }
+                    } label: {
+                        Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+                            .foregroundColor(.dmError)
+                    }
+                    .disabled(isLoggingOut)
+                }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         showUpload = true
@@ -64,7 +77,46 @@ struct DocumentListView: View {
                 await viewModel.loadDocuments()
             }
             .errorAlert(isPresented: $viewModel.showError, message: viewModel.errorMessage ?? "An error occurred")
+            .alert(
+                "Couldn't sign out",
+                isPresented: Binding(
+                    get: { logoutError != nil },
+                    set: { isPresented in
+                        if !isPresented { logoutError = nil }
+                    }
+                ),
+                actions: {
+                    Button("OK", role: .cancel) { logoutError = nil }
+                },
+                message: {
+                    Text(logoutError ?? "")
+                }
+            )
+            .overlay {
+                if isLoggingOut {
+                    ProgressView("Signing out...")
+                        .padding()
+                        .background(Color.dmSurface)
+                        .cornerRadius(12)
+                        .shadow(radius: 10)
+                }
+            }
         }
+    }
+    
+    private func handleLogout() async {
+        guard !isLoggingOut else { return }
+        isLoggingOut = true
+        logoutError = nil
+        
+        await AuthService.shared.logout()
+        
+        // If logout doesn't clear auth state, show an error
+        if authService.isAuthenticated {
+            logoutError = "Something went wrong while signing out. Please try again."
+        }
+        
+        isLoggingOut = false
     }
 }
 

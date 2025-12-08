@@ -78,12 +78,23 @@ class AuthService: ObservableObject {
         saveTokens(accessToken: response.access_token, refreshToken: response.refresh_token)
     }
     
-    func logout() {
-        UserDefaults.standard.removeObject(forKey: accessTokenKey)
-        UserDefaults.standard.removeObject(forKey: refreshTokenKey)
-        UserDefaults.standard.removeObject(forKey: userKey)
-        isAuthenticated = false
-        currentUser = nil
+    func logout() async {
+        guard let refreshToken = refreshToken else {
+            clearSession()
+            return
+        }
+        
+        let request = RefreshTokenRequest(refresh_token: refreshToken)
+        
+        // Best-effort revoke on the backend; still clear local session
+        _ = try? await NetworkService.shared.request(
+            endpoint: "/auth/logout",
+            method: .post,
+            body: request,
+            requiresAuth: true
+        ) as EmptyResponse
+        
+        clearSession()
     }
     
     // MARK: - Token Management
@@ -104,5 +115,13 @@ class AuthService: ObservableObject {
         if let userData = try? JSONEncoder().encode(user) {
             UserDefaults.standard.set(userData, forKey: userKey)
         }
+    }
+    
+    private func clearSession() {
+        UserDefaults.standard.removeObject(forKey: accessTokenKey)
+        UserDefaults.standard.removeObject(forKey: refreshTokenKey)
+        UserDefaults.standard.removeObject(forKey: userKey)
+        isAuthenticated = false
+        currentUser = nil
     }
 }
