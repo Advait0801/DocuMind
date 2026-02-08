@@ -1,53 +1,173 @@
-DocuMind 📚🧠
-============
+# 📚 DocuMind
 
-[![Swift](https://img.shields.io/badge/Swift-FA7343?logo=swift&logoColor=white)](https://developer.apple.com/swift/)
-[![SwiftUI](https://img.shields.io/badge/SwiftUI-0A84FF?logo=swift&logoColor=white)](https://developer.apple.com/xcode/swiftui/)
-[![iOS](https://img.shields.io/badge/iOS-000000?logo=apple&logoColor=white)](https://developer.apple.com/ios/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
-[![LangChain](https://img.shields.io/badge/LangChain-1E4B82?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjI2IiBoZWlnaHQ9IjIyNiIgdmlld0JveD0iMCAwIDIyNiAyMjYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIyNiIgaGVpZ2h0PSIyMjYiIHJ4PSI1MCIgZmlsbD0iIzBlMmE1ZCIvPjx0ZXh0IHg9IjEyMyIgeT0iMTQwIiBmb250LXNpemU9IjExMCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2ZmZiIgZGV4LWxlbmVtaXRlci1hZGRpdGlvbj0iMzAiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkxDPC90ZXh0Pjwvc3ZnPg==&logoColor=white)](https://langchain.com/)
-[![ChromaDB](https://img.shields.io/badge/Chroma-4B0082?logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjI2IiBoZWlnaHQ9IjIyNiIgdmlld0JveD0iMCAwIDIyNiAyMjYiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIyNiIgaGVpZ2h0PSIyMjYiIHJ4PSI1MCIgZmlsbD0iIzRiMDA4MiIvPjxjaXJjbGUgY3g9Ijk2IiBjeT0iMTA0IiByPSI0MCIgZmlsbD0iI2ZmZiIvPjxjaXJjbGUgY3g9IjEzMCIgY3k9IjEyMCIgcj0iMzAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuOCIvPjwvc3ZnPg==)](https://www.trychroma.com/)
-[![JWT](https://img.shields.io/badge/JWT-000000?logo=jsonwebtokens&logoColor=white)](https://jwt.io/)
+<div align="center">
 
-**RAG-powered knowledge assistant** with a FastAPI backend and a SwiftUI iOS client. Upload PDFs, chunk + embed them, run semantic search, and chat with streaming answers — all with JWT auth and token revocation.
+**A RAG-powered knowledge assistant with semantic search and streaming chat over your PDFs**
 
-Key Highlights
---------------
-- 🤝 **Secure Auth**: Register/login, access + refresh tokens, refresh endpoint, logout with revocation store.
-- 📤 **PDF Uploads**: FileImporter → FastAPI ingest → chunk + embed → vector DB (Chroma/FAISS).
-- 🔎 **Semantic Search**: Filter by selected documents, tune top-K, view scored chunks.
-- 💬 **Streaming Chat**: RAG answers streamed to the app for low-latency UX.
-- 🗂️ **Docs UX**: List, view detail, delete; responsive layouts for iPhone/iPad.
-- 🎨 **Design System**: Brand colors/typography enforced via theme (no raw hex in views).
+[![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)
+[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green.svg)](https://fastapi.tiangolo.com)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Motor-green.svg)](https://www.mongodb.com)
+[![iOS](https://img.shields.io/badge/iOS-17.0+-lightgrey.svg)](https://developer.apple.com/ios)
+[![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector%20Store-purple.svg)](https://www.trychroma.com)
+[![LangChain](https://img.shields.io/badge/LangChain-RAG-blue.svg)](https://langchain.com)
+[![Gemini](https://img.shields.io/badge/Google-Gemini%20LLM-4285F4.svg)](https://ai.google.dev)
 
-System Architecture
--------------------
+</div>
+
+---
+
+## 📱 Overview
+
+**DocuMind** is a full-stack RAG (Retrieval-Augmented Generation) application that lets users upload PDFs, search them semantically, and chat with an AI that answers from document context. Built with SwiftUI for iOS and FastAPI for the backend, it uses ChromaDB for vector storage, SentenceTransformer for embeddings, and Google Gemini for streaming answers.
+
+### Key Highlights
+
+- 🤖 **RAG Pipeline**: Chunk → embed → store in ChromaDB; retrieve by similarity → generate answer with Gemini
+- 🔐 **Secure Auth**: JWT access + refresh tokens, bcrypt hashing, logout with token revocation (MongoDB)
+- 📤 **PDF Ingestion**: PyMuPDF text extraction, LangChain RecursiveCharacterTextSplitter, user-scoped namespaces
+- 🔎 **Semantic Search**: Filter by document(s), tune top-K; results show filename and score
+- 💬 **Streaming Chat**: SSE streaming of LLM tokens for low-latency UX
+- 🗂️ **Document Management**: List, view detail, delete documents with responsive SwiftUI layouts
+- 🎨 **Design System**: Brand colors and typography (no raw hex in views); light/dark aware
+
+---
+
+## ✨ Features
+
+### Core Functionality
+
+- **PDF Upload**: FileImporter on iOS → multipart upload → server saves file, extracts text with PyMuPDF
+- **Chunking & Embedding**: RecursiveCharacterTextSplitter (~800 chars, 200 overlap); SentenceTransformer `all-MiniLM-L6-v2` for embeddings
+- **Vector Store**: ChromaDB with persistent storage; per-user collections (`user_{user_id}`)
+- **Document Metadata**: MongoDB stores doc_id, filename, uploaded_at, chunk_count, file_size per user
+- **User Authentication**: Register, login, refresh token, logout (revoked tokens stored with TTL)
+- **Document CRUD**: List documents, view detail, delete (removes from MongoDB and vector store)
+
+### Search & Chat
+
+- **Semantic Search**: Query embedded with same model; similarity search in user’s Chroma collection; optional `doc_ids` filter and `top_k`
+- **Search Filters (iOS)**: Filter sheet to select documents and set “top K” results; active filters shown in bar
+- **RAG Query**: Retrieve top-K chunks → build context → Gemini generates answer from context only
+- **Streaming Responses**: Server-Sent Events (SSE); iOS consumes stream and updates UI per token
+- **Chat UI**: Streaming message bubbles, document-scoped queries
+
+### User Experience
+
+- **Responsive Layouts**: GeometryReader and size classes; works on iPhone and iPad
+- **Theme**: Colors and typography from theme (e.g. `dmBackground`, `dmPrimary`); no raw hex in views
+- **Loading & Errors**: LoadingView, ErrorAlert component, consistent error handling
+- **Simulator-Friendly**: FileImporter for PDFs; no camera or device-specific APIs required
+
+---
+
+## 🏗️ Architecture
+
+### System Architecture
+
 ```
-┌──────────────────┐      ┌─────────────────────┐      ┌──────────────────┐
-│   SwiftUI App    │ ───► │ FastAPI (Auth/RAG)  │ ───► │ MongoDB + Vectors│
-│  (MVVM, async)   │ ◄─── │ LangChain + Chroma  │ ◄─── │  (Chroma/FAISS)  │
-└──────────────────┘      └─────────────────────┘      └──────────────────┘
-        ▲                          │
-        │ SSE (streamed chat)      │
-        └──────────────────────────┘
+┌─────────────────┐         ┌──────────────────┐        ┌─────────────────┐
+│   iOS Client    │◄───────►│  FastAPI Backend │◄──────►│    MongoDB      │
+│   (SwiftUI)     │  REST   │  (Python)        │ Async  │   (Users, Docs) │
+└─────────────────┘         └──────────────────┘        └─────────────────┘
+      │                              │
+      │ SSE (streamed chat)          │
+      │                              ▼
+      │                     ┌──────────────────┐
+      │                     │ ChromaDB         │
+      │                     │ (vector store)   │
+      │                     │ per-user coll.   │
+      │                     └────────┬─────────┘
+      │                              │
+      │                     ┌────────┴────────┐
+      │                     ▼                 ▼
+      │              ┌──────────────┐  ┌──────────────┐
+      │              │ Sentence     │  │ Google       │
+      │              │ Transformer  │  │ Gemini LLM   │
+      │              │ (embeddings) │  │ (streaming)  │
+      │              └──────────────┘  └──────────────┘
+      │
+      ▼
+┌─────────────┐
+│ JWT Tokens  │
+│ UserDefaults│
+└─────────────┘
 ```
 
-Stack
------
-- **Frontend**: SwiftUI, MVVM, async/await networking, streaming handling, FileImporter uploads.
-- **Backend**: FastAPI, LangChain, Chroma/FAISS, MongoDB (Motor), JWT (python-jose), bcrypt.
-- **RAG**: SentenceTransformer embeddings, document chunking, semantic search + retrieval, optional rerank-ready.
+### Workflow
 
-Notes
------
-- Embedding model is preloaded on startup to reduce first-query latency.
-- Revoked tokens stored with TTL (`revoked_tokens` collection).
-- SwiftUI views must use theme colors/typography (no raw hex in views).
+1. **User uploads a PDF**  
+   From the iOS app they pick a file via FileImporter. The app sends it to `POST /upload` with the auth token.
 
-Roadmap Ideas
--------------
-- Profile screen (update password/email).
-- Chat citations with chunk metadata + copy.
-- Offline cache for document metadata and last chat thread.
+2. **Backend stores the file and ingests it**  
+   The PDF is saved under `./data/uploads`. The server extracts text with **PyMuPDF** (fitz). If the PDF is empty or unreadable, the request fails with a clear error.
+
+3. **Text is chunked and embedded**  
+   **LangChain**’s `RecursiveCharacterTextSplitter` splits the text into chunks (~800 characters, 200 overlap). Each chunk is embedded with **SentenceTransformer** (`all-MiniLM-L6-v2`). Embeddings are computed in batch and written to **ChromaDB** in the user’s collection, with metadata: `doc_id`, `chunk_id`, `filename`, etc.
+
+4. **Document record is saved**  
+   MongoDB gets a document entry: `doc_id`, `user_id`, `filename`, `uploaded_at`, `chunk_count`, `file_size`. The list/detail/delete APIs use this.
+
+5. **User runs a search**  
+   They type a query in the Search tab and optionally apply filters (specific documents, top-K). The app sends `POST /search` with `query`, optional `doc_ids`, and `top_k`. The backend embeds the query with the same model, runs similarity search in ChromaDB (scoped to the user and optional doc_ids), and returns matching chunks with scores. The app shows results with filename and score.
+
+6. **User asks a question in Chat**  
+   They submit a question (optionally limited to certain docs). The app sends `POST /query` with `stream: true`. The backend **retrieves** top-K relevant chunks (same retrieval path as search), **builds** a context string from those chunks, and sends it to **Google Gemini** with a system prompt: “Answer only from the context.” The LLM response is **streamed** back as Server-Sent Events.
+
+7. **iOS displays the stream**  
+   The app parses SSE lines, decodes `data: {...}` JSON (e.g. `type: "token"`, `content`), and appends tokens to the current message so the answer appears incrementally.
+
+8. **Logout**  
+   User taps Sign Out. The app calls `POST /auth/logout` with the refresh token (and auth header). The server revokes both access and refresh tokens in MongoDB (`revoked_tokens`). The app clears local tokens and user state and shows the login screen.
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend (iOS)
+
+- **Language**: Swift 5.9+
+- **Framework**: SwiftUI
+- **Architecture**: MVVM
+- **Networking**: URLSession with async/await; SSE parsing for streaming
+- **Storage**: UserDefaults for JWT and current user
+- **Uploads**: FileImporter for PDF selection
+- **Minimum iOS**: 17.0+
+- **Layout**: ResponsiveContainer, GeometryReader, size classes
+
+### Backend (Python)
+
+- **Framework**: FastAPI 0.104.1
+- **ASGI Server**: Uvicorn
+- **Database**: MongoDB (Motor async driver, PyMongo)
+- **Authentication**: JWT (python-jose), bcrypt (passlib)
+- **PDF**: PyMuPDF (fitz)
+- **Python**: 3.10+
+
+### RAG & AI
+
+- **Embeddings**: SentenceTransformer (`all-MiniLM-L6-v2`)
+- **Vector DB**: ChromaDB (persistent, per-user collections)
+- **Chunking**: LangChain RecursiveCharacterTextSplitter
+- **LLM**: Google Gemini (langchain-google-genai, streaming)
+- **Orchestration**: LangChain (prompts, message handling)
+
+---
+
+## 🚧 Future Enhancements
+
+- [ ] Profile screen (change password / email)
+- [ ] Chat citations: show source chunks and copy button
+- [ ] Offline cache for document list and last chat thread
+- [ ] Reranker step for retrieval
+- [ ] Support for more file types (e.g. plain text, Markdown)
+
+---
+
+<div align="center">
+
+**Built with ❤️ using Swift, Python, and RAG**
+
+⭐ Star this repo if you find it helpful!
+
+</div>
